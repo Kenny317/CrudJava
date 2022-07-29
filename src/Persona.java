@@ -86,6 +86,8 @@ public class Persona extends JFrame {
 	}
 	
 	public Persona() {	
+		
+		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 538, 537);
 		contentPane = new JPanel();
@@ -127,6 +129,7 @@ public class Persona extends JFrame {
 		txtID = new JTextField();
 		txtID.setEnabled(false);
 		txtID.setColumns(10);
+		txtID.setVisible(false);
 		
 		cbxGenero = new JComboBox();
 		cbxGenero.setModel(new DefaultComboBoxModel(new String[] {"Selecciona", "Hombre", "Mujer"}));
@@ -135,9 +138,9 @@ public class Persona extends JFrame {
 		btnGuardar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
+				Connection con = null;
 				
 				try {
-					Connection con = null;
 					con = getConection();
 					
 					ps = con.prepareStatement("insert into persona (clave,nombre,domicilio,telefono,email,fecha_nacimiento,genero)values(?,?,?,?,?,?,?)");
@@ -174,6 +177,39 @@ public class Persona extends JFrame {
 		JButton btnLimpiar = new JButton("Limpiar");
 		
 		JButton btnBuscar = new JButton("Buscar");
+		btnBuscar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				Connection con =  null;
+				
+				try {
+					
+					con = getConection();
+					
+					ps = con.prepareStatement("select * from persona where clave = ?");
+					ps.setString(1, txtClave.getText());
+					
+					rs = ps.executeQuery();
+					
+					if(rs.next()){
+						txtID.setText(rs.getString("id"));
+						txtNombre.setText(rs.getString("nombre"));
+						txtDomicilio.setText(rs.getString("domicilio"));
+						txtTelefono.setText(rs.getString("telefono"));
+						txtEmail.setText(rs.getString("email"));
+						txtFechaNacimiento.setText(rs.getString("fecha_nacimiento"));
+						cbxGenero.setSelectedItem(rs.getString("genero"));
+					}else {
+						JOptionPane.showMessageDialog(null, "No existe una persona con la clave");
+						limpiarCajas();
+					}
+					
+				}catch(Exception e1){
+					System.out.println(e1);
+				}
+			}
+		});
+		
 		GroupLayout gl_contentPane = new GroupLayout(contentPane);
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
