@@ -1,37 +1,52 @@
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.JTextField;
-import javax.swing.JLabel;
-import javax.swing.LayoutStyle.ComponentPlacement;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.border.EmptyBorder;
 
 public class Persona extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField txtClave;
 	private JLabel lblNewLabel_1;
-	private JTextField txtNombre;
 	private JLabel lblNewLabel_2;
 	private JLabel lblNewLabel_3;
 	private JLabel lblNewLabel_4;
 	private JLabel lblNewLabel_5;
 	private JLabel lblNewLabel_6;
+	private JTextField txtClave;
+	private JTextField txtNombre;
 	private JTextField txtDomicilio;
 	private JTextField txtTelefono;
 	private JTextField txtEmail;
 	private JTextField txtFechaNacimiento;
 	private JTextField txtID;
+	private JComboBox cbxGenero;
+	private JButton btnGuardar;
 
+	public static final String controlador = "com.mysql.cj.jdbc.Driver";
+	public static final String url = "jdbc:mysql://localhost:3306/escuela";
+	public static final String usuario = "root";
+	public static final String clave = "Tripa317";
+	
+	PreparedStatement ps;
+	ResultSet rs;
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -43,6 +58,31 @@ public class Persona extends JFrame {
 				}
 			}
 		});
+	}
+	
+	public static Connection getConection()
+	{
+		Connection con = null;
+		
+		try{
+			Class.forName(controlador);
+			con = (Connection)DriverManager.getConnection(url,usuario,clave);
+			JOptionPane.showMessageDialog(null,"Conexion Exitosa");
+		}catch (Exception e) {
+			System.out.println(e);
+		}
+		return con;
+	}
+
+	private void limpiarCajas() {
+		
+		txtClave.setText(null);
+		txtNombre.setText(null);
+		txtDomicilio.setText(null);
+		txtTelefono.setText(null);
+		txtEmail.setText(null);
+		txtFechaNacimiento.setText(null);
+		cbxGenero.setSelectedIndex(0);
 	}
 	
 	public Persona() {	
@@ -85,16 +125,45 @@ public class Persona extends JFrame {
 		txtFechaNacimiento.setColumns(10);
 		
 		txtID = new JTextField();
+		txtID.setEnabled(false);
 		txtID.setColumns(10);
 		
-		JComboBox cbxGenero = new JComboBox();
+		cbxGenero = new JComboBox();
 		cbxGenero.setModel(new DefaultComboBoxModel(new String[] {"Selecciona", "Hombre", "Mujer"}));
 		
-		JButton btnGuardar = new JButton("Guardar");
+		btnGuardar = new JButton("Guardar");
 		btnGuardar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
 				
+				try {
+					Connection con = null;
+					con = getConection();
+					
+					ps = con.prepareStatement("insert into persona (clave,nombre,domicilio,telefono,email,fecha_nacimiento,genero)values(?,?,?,?,?,?,?)");
+					ps.setString(1,txtClave.getText());
+					ps.setString(2,txtNombre.getText());
+					ps.setString(3,txtDomicilio.getText());
+					ps.setString(4,txtTelefono.getText());
+					ps.setString(5,txtEmail.getText());
+					ps.setDate(6,Date.valueOf(txtFechaNacimiento.getText()));
+					ps.setString(7,cbxGenero.getSelectedItem().toString());
+					
+					int res = ps.executeUpdate();
+
+					if(res > 0){
+						JOptionPane.showMessageDialog(null,"Persona Guardada");
+						limpiarCajas();
+					}else {
+						JOptionPane.showMessageDialog(null,"Error al guardar persona");
+						limpiarCajas();
+					}
+					
+										
+					con.close();
+				}catch(Exception e1){
+					System.out.println(e1);
+				}
 			}
 		});
 		
@@ -109,18 +178,19 @@ public class Persona extends JFrame {
 		gl_contentPane.setHorizontalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_contentPane.createSequentialGroup()
+					.addGap(0, 0, Short.MAX_VALUE)
 					.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_contentPane.createSequentialGroup()
 							.addGap(57)
 							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-								.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING)
-									.addComponent(lblNewLabel, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 49, GroupLayout.PREFERRED_SIZE)
-									.addComponent(lblNewLabel_1, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 49, GroupLayout.PREFERRED_SIZE)
-									.addComponent(lblNewLabel_2, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 49, GroupLayout.PREFERRED_SIZE)
-									.addComponent(lblNewLabel_3, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 49, GroupLayout.PREFERRED_SIZE)
-									.addComponent(lblNewLabel_4, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 49, GroupLayout.PREFERRED_SIZE)
-									.addComponent(lblNewLabel_6, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 49, GroupLayout.PREFERRED_SIZE))
-								.addComponent(lblNewLabel_5))
+								.addComponent(lblNewLabel_5)
+								.addGroup(gl_contentPane.createParallelGroup(Alignment.TRAILING, false)
+									.addComponent(lblNewLabel_3, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+									.addComponent(lblNewLabel_1, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 67, Short.MAX_VALUE)
+									.addComponent(lblNewLabel_2, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+								.addComponent(lblNewLabel_4, GroupLayout.PREFERRED_SIZE, 49, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblNewLabel_6, GroupLayout.PREFERRED_SIZE, 49, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblNewLabel, GroupLayout.PREFERRED_SIZE, 49, GroupLayout.PREFERRED_SIZE))
 							.addGap(51)
 							.addGroup(gl_contentPane.createParallelGroup(Alignment.LEADING, false)
 								.addGroup(gl_contentPane.createSequentialGroup()
@@ -145,7 +215,7 @@ public class Persona extends JFrame {
 							.addComponent(btnEliminar)
 							.addGap(18)
 							.addComponent(btnLimpiar)))
-					.addContainerGap(19, Short.MAX_VALUE))
+					.addGap(43))
 		);
 		gl_contentPane.setVerticalGroup(
 			gl_contentPane.createParallelGroup(Alignment.LEADING)
@@ -178,8 +248,8 @@ public class Persona extends JFrame {
 								.addComponent(lblNewLabel_5))
 							.addGap(18)
 							.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
-								.addComponent(lblNewLabel_6)
-								.addComponent(cbxGenero, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+								.addComponent(cbxGenero, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblNewLabel_6))
 							.addGap(36)
 							.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
 								.addComponent(btnLimpiar)
@@ -187,11 +257,10 @@ public class Persona extends JFrame {
 								.addComponent(btnEliminar)
 								.addComponent(btnModificar)))
 						.addGroup(gl_contentPane.createSequentialGroup()
-							.addGap(71)
-							.addComponent(lblNewLabel))
-						.addGroup(gl_contentPane.createSequentialGroup()
 							.addGap(68)
-							.addComponent(txtClave, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)))
+							.addGroup(gl_contentPane.createParallelGroup(Alignment.BASELINE)
+								.addComponent(txtClave, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblNewLabel))))
 					.addContainerGap(113, Short.MAX_VALUE))
 		);
 		contentPane.setLayout(gl_contentPane);
