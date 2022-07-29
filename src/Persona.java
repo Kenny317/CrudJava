@@ -171,6 +171,41 @@ public class Persona extends JFrame {
 		});
 		
 		JButton btnModificar = new JButton("Modificar");
+		btnModificar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+					Connection con = null;
+				
+				try {
+					con = getConection();
+					
+					ps = con.prepareStatement("update persona set clave = ?, nombre = ?, domicilio = ?, telefono = ?, email = ?, fecha_nacimiento = ?, genero = ? where id = ? ");
+					ps.setString(1,txtClave.getText());
+					ps.setString(2,txtNombre.getText());
+					ps.setString(3,txtDomicilio.getText());
+					ps.setString(4,txtTelefono.getText());
+					ps.setString(5,txtEmail.getText());
+					ps.setDate(6,Date.valueOf(txtFechaNacimiento.getText()));
+					ps.setString(7,cbxGenero.getSelectedItem().toString());
+					ps.setString(8,txtID.getText());
+					
+					int res = ps.executeUpdate();
+
+					if(res > 0){
+						JOptionPane.showMessageDialog(null,"Persona Modificada");
+						limpiarCajas();
+					}else {
+						JOptionPane.showMessageDialog(null,"Error al modificar persona");
+						limpiarCajas();
+					}
+					
+										
+					con.close();
+				}catch(Exception e1){
+					System.out.println(e1);
+				}
+			}
+		});
 		
 		JButton btnEliminar = new JButton("Eliminar");
 		
