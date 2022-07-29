@@ -208,8 +208,39 @@ public class Persona extends JFrame {
 		});
 		
 		JButton btnEliminar = new JButton("Eliminar");
+		btnEliminar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				Connection con =  null;
+				
+				try {
+					
+					con = getConection();
+					
+					ps = con.prepareStatement("delete from persona where id = ?");
+					ps.setInt(1, Integer.parseInt(txtID.getText()));
+					
+					int res = ps.executeUpdate();
+					
+					if(res > 0){
+						JOptionPane.showMessageDialog(null,"persona eliminada");
+					}else {
+						JOptionPane.showMessageDialog(null, "Error al eliminar persona");
+						limpiarCajas();
+					}
+					
+				}catch(Exception e1){
+					System.out.println(e1);
+				}
+			}
+		});
 		
 		JButton btnLimpiar = new JButton("Limpiar");
+		btnLimpiar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				limpiarCajas();
+			}
+		});
 		
 		JButton btnBuscar = new JButton("Buscar");
 		btnBuscar.addActionListener(new ActionListener() {
